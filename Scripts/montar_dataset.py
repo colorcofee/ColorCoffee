@@ -12,10 +12,12 @@ import warnings
 # Parametros
 RANDOM_STATE = 42
 DEBUG_PRINT = False
-HEADER = ['RGB_medio_cafe', 'R_medio_cafe', 'G_medio_cafe', 'B_medio_cafe', 'RGB_std_cafe', 'R_std_cafe', 'G_std_cafe', 'B_std_cafe',
-                            'RGB_medio_folha', 'RGB_std_folha', 'HSV_medio_cafe', 'H_medio_cafe', 'S_medio_cafe', 'V_medio_cafe', 'HSV_std_cafe', 'H_std_cafe', 'S_std_cafe', 'V_std_cafe',
-                            'HSV_medio_folha', 'HSV_std_folha', 'Agtron']
+# HEADER = ['RGB_medio_cafe', 'R_medio_cafe', 'G_medio_cafe', 'B_medio_cafe', 'RGB_std_cafe', 'R_std_cafe', 'G_std_cafe', 'B_std_cafe',
+#                             'RGB_medio_folha', 'RGB_std_folha', 'HSV_medio_cafe', 'H_medio_cafe', 'S_medio_cafe', 'V_medio_cafe', 'HSV_std_cafe', 'H_std_cafe', 'S_std_cafe', 'V_std_cafe',
+#                             'HSV_medio_folha', 'HSV_std_folha', 'Agtron']
 
+HEADER = ['media_cinza_cafe', 'R_medio_cafe', 'G_medio_cafe', 'B_medio_cafe',  'H_medio_cafe', 'S_medio_cafe', 'V_medio_cafe',
+                            'media_cinza_folha',  'Agtron']
 # Define cores no print
 class bcolors:
     WARNING = '\033[93m'
@@ -25,6 +27,11 @@ class bcolors:
     CYAN = '\033[96m'
     ENDC = '\033[0m'
     BOLD = '\033[1m'
+
+def extrairCinza(img):
+    ay = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    c = cv2.split(ay)
+    return c
 
 # Função para extrair RGB e/ou Equalizar Histograma
 def extrairRGB(img, equalizar=False):
@@ -141,9 +148,13 @@ def criarDataSet(filtros):
             media_cafe_HSV = np.mean([H_c, S_c, V_c])
             desvio_cafe_HSV = np.std([H_c, S_c, V_c])
 
+            cinza_cafe = extrairCinza(img_cafe)
+            cinza_folha = extrairCinza(img_folha) 
+            
+            print(cinza_cafe)
+
             # Monta uma linsta com as informações extraídas
-            geral = [media_cafe_RGB, np.mean(R_c), np.mean(G_c), np.mean(B_c), desvio_cafe_RGB, np.std(R_c), np.std(G_c), np.std(B_c), media_folha_RGB, desvio_folha_RGB, media_cafe_HSV, np.mean(H_c), np.mean(S_c), np.mean(V_c), desvio_cafe_HSV, np.std(H_c), np.std(S_c), np.std(
-                V_c), media_folha_HSV, desvio_folha_HSV]
+            geral = [np.mean(cinza_cafe), np.mean(R_c), np.mean(G_c), np.mean(B_c),np.mean(H_c), np.mean(S_c), np.mean(V_c), np.mean(cinza_folha)]
 
             # Arrendonda os valores da lista, para que tenham somente 3 casa decimais
             geral_arredondado = [round(num, 3) for num in geral]
@@ -167,7 +178,7 @@ def exportarCSV(header, data, name):
 
 if __name__ == '__main__':
     # Ocultando os warnings
-    warnings.filterwarnings(action='ignore')
+    # warnings.filterwarnings(action='ignore')
     print(f"{bcolors.BOLD}{bcolors.OKGREEN}{'--------------------'}{bcolors.ENDC}\n")
     print(f"{bcolors.BOLD}{bcolors.WARNING}{'Criando dataset SEM filtro'}{bcolors.ENDC}\n")
 
